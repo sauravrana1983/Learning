@@ -1,21 +1,11 @@
 var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 3000;
-var todos =[{
-        id: 1,
-        descripton: 'meeting',
-        completed: false
-    },
-    {
-        id: 2,
-        descripton: 'Demo Completion',
-        completed: false
-    },
-    {
-        id: 3,
-        descripton: 'BMW Demo',
-        completed: true
-    }];
+var todos =[];
+var todoNextID = 1;
+var bodyParser = require('body-parser');
+
+app.use(bodyParser.json()); //Adding the JSON parser middleware
 
 app.get('/', function(req, res){
     res.send("ToDo API Root");
@@ -39,7 +29,16 @@ app.get('/todos/:id', function(req, res){
 
 app.get('/todos', function(req, resp){
     resp.json(todos);
-})
+});
+
+//Post Request
+
+app.post('/todos', function(req, res){
+    var body = req.body;
+    body.id = todoNextID++; 
+    todos.push(body);
+    res.json(body);
+});
 
 app.listen(PORT, function(){
     console.log('Express Listening on Port ' + PORT);
