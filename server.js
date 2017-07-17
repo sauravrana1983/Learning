@@ -25,7 +25,14 @@ app.get('/todos/:id', function(req, res){
 });
 
 app.get('/todos', function(req, resp){
-    resp.json(todos);
+    var queryParams = req.query;
+    var filteredToDo = todos;
+    if(queryParams.hasOwnProperty('completed')&&  queryParams.completed === 'true'){
+        filteredToDo = _.where(filteredToDo, {completed: true});
+    }else if(queryParams.hasOwnProperty('completed')&&  queryParams.completed === 'false'){
+        filteredToDo = _.where(filteredToDo, {completed: false});
+    }
+    resp.json(filteredToDo);
 });
 
 //Post Request
