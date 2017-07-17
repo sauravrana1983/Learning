@@ -27,11 +27,18 @@ app.get('/todos/:id', function(req, res){
 app.get('/todos', function(req, resp){
     var queryParams = req.query;
     var filteredToDo = todos;
-    if(queryParams.hasOwnProperty('completed')&&  queryParams.completed === 'true'){
+    if(queryParams.hasOwnProperty('completed') &&  queryParams.completed === 'true'){
         filteredToDo = _.where(filteredToDo, {completed: true});
     }else if(queryParams.hasOwnProperty('completed')&&  queryParams.completed === 'false'){
         filteredToDo = _.where(filteredToDo, {completed: false});
     }
+
+    if(queryParams.hasOwnProperty('q') &&  queryParams.q.length > 0){
+        filteredToDo = _.filter(filteredToDo, function(todo){
+            return todo.indexOf(queryParams.q) > -1;
+        })
+    }
+    
     resp.json(filteredToDo);
 });
 
