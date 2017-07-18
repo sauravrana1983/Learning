@@ -28,22 +28,26 @@ app.get('/todos/:id', function(req, res){
     });
 
 
-app.get('/todos', function(req, resp){
-    var queryParams = req.query;
-    var filteredToDo = todos;
-    if(queryParams.hasOwnProperty('completed') &&  queryParams.completed === 'true'){
-        filteredToDo = _.where(filteredToDo, {completed: true});
-    }else if(queryParams.hasOwnProperty('completed') &&  queryParams.completed === 'false'){
-        filteredToDo = _.where(filteredToDo, {completed: false});
+app.get('/todos', function(req, res){
+    var query = req.query;
+    var where = {};
+    if(query.hasOwnProperty('completed') && query.completed === 'true'){
+        where.completed = true;
+    }else if(query.hasOwnProperty('completed') && query.completed === 'false'){
+        where.completed = false;
     }
 
-    if(queryParams.hasOwnProperty('q') &&  queryParams.q.length > 0){
-        filteredToDo = _.filter(filteredToDo, function(todo){
-            return todo.indexOf(queryParams.q) > -1;
-        })
+    if(query.hasOwnProperty('q') && query.q.length > 0){
+        where.description ={
+            $like: '%' + query.q + '%'
+        };
     }
-    
-    resp.json(filteredToDo);
+
+    db.todo.findAll({where: where}).then(function(todos){
+        res.json(todos);
+    }, function(e){
+        res.status(500).send();
+    });
 });
 
 //Post Request
@@ -55,14 +59,6 @@ app.post('/todos', function(req, res){
     }, function(e){
         res.status(400).json(e);
     });
-    // if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
-    //     return res.status(400).send();
-    // }
-
-    // body.description = body.description.trim();
-    // body.id = todoNextID++; 
-    // todos.push(body);
-    // res.json(body);
 });
 
 app.delete('/todos/:id', function(req, res){
