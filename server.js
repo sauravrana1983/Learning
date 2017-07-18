@@ -16,21 +16,24 @@ app.get('/', function(req, res){
 
 app.get('/todos/:id', function(req, res){
     var todoID= parseInt(req.params.id, 10);
-    var matchedTodo = _.findWhere(todos, {id: todoID});
+    db.todo.findById(todoID).then(function(todo){
+                if(!!todo){
+                    res.json(todo.toJSON());
+                }else{
+                    res.status(404).send();
+                }   
+            } , function(e){
+                res.status(500).send();
+            });    
+    });
 
-    if(matchedTodo){
-        res.json(matchedTodo);
-    }else{
-        res.status(404).send();
-    }
-});
 
 app.get('/todos', function(req, resp){
     var queryParams = req.query;
     var filteredToDo = todos;
     if(queryParams.hasOwnProperty('completed') &&  queryParams.completed === 'true'){
         filteredToDo = _.where(filteredToDo, {completed: true});
-    }else if(queryParams.hasOwnProperty('completed')&&  queryParams.completed === 'false'){
+    }else if(queryParams.hasOwnProperty('completed') &&  queryParams.completed === 'false'){
         filteredToDo = _.where(filteredToDo, {completed: false});
     }
 
